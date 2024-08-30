@@ -1,2 +1,2 @@
 export { default as MarketDashboard  } from './marketDashboard';
-export { default as ProjectSidebar } from './ProjectSidebar';
+export { default as LoginPage } from './LoginPage';
