@@ -1,25 +1,27 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AdminDashboard, LoginPage, MarketDashboard } from './pages';
+import { ProjectSidebar, AdminSidebar } from './components';
 
-function App() {
+const ProtectedRoute = ({ element, isAuthenticated, ...rest }) => {
+  return isAuthenticated ? element : <Navigate to="/" replace />;
+};
+
+const App = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginPage setIsAuthenticated={setIsAuthenticated} />} />
+        <Route path="/AdminDashboard" element={<ProtectedRoute element={<AdminDashboard />} isAuthenticated={isAuthenticated} />} />
+        <Route path="/MarketDashboard" element={<ProtectedRoute element={<MarketDashboard />} isAuthenticated={isAuthenticated} />} />
+        <Route path="/ChatBox" element={<ProtectedRoute element={<AdminSidebar />} isAuthenticated={isAuthenticated} />} />
+        <Route path="/ProjectSidebar" element={<ProtectedRoute element={<ProjectSidebar />} isAuthenticated={isAuthenticated} />} />
+        {/* <Route path="/Support" element={Support} /> */}
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;
