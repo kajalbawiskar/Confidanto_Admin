@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import AdminSidebar from '../components/AdminSidebar';
 
 const MarketDashboard = () => {
   const [users, setUsers] = useState([]);
@@ -48,7 +47,6 @@ const MarketDashboard = () => {
 
   return (
     <div className="flex ">
-      <AdminSidebar/>
       <div className="bg-gray-100 flex flex-col p-6 w-screen overflow-auto">
         <header className="text-4xl font-bold text-gray-800 mb-6">Confidanto Marketing Dashboard</header>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
