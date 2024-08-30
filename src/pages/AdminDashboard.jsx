@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import AdminSidebar from "../components/AdminSidebar";
 
 const AdminDashboard = () => {
   const [emails, setEmails] = useState([]);
@@ -51,8 +50,6 @@ const AdminDashboard = () => {
 
   return (
     <div className="flex h-screen">
-      
-      <AdminSidebar/>
       <div className="w-1/4 bg-gray-100 border-r border-gray-200 overflow-y-auto">
         <h2 className="text-lg font-bold p-4">Chats</h2>
         <ul>
