@@ -35,7 +35,7 @@ function LoginPage({ setIsAuthenticated }) {
   const fakeApiCall = (email, password) => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        if (email === 'malisanket882@gmail.com' && password === 'Lc5zwPi6tNfXdyb') {
+        if (email === 'confidanto.operations@gmail.com' && password === 'Lc5zwPi6tNfXdyb') {
           resolve({ success: true });
         } else {
           resolve({ success: false });
