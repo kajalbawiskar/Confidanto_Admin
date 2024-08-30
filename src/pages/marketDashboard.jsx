@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import AdminSidebar from '../components/AdminSidebar';
 
 const MarketDashboard = () => {
   const [users, setUsers] = useState([]);
+  const [regions, setRegions] = useState([]);
+  const [subscriptions, setSubscriptions] = useState([]);
 
   useEffect(() => {
-    // Fetch data from the API
+    // Fetch project data
     fetch('https://api.confidanto.com/projects-data/fetch-project-list-all-users', {
       method: 'POST',
       headers: {
@@ -18,7 +19,7 @@ const MarketDashboard = () => {
         // Group projects by user email
         const groupedUsers = data.reduce((acc, project) => {
           const { email, name, category, invited_users } = project;
-          const remainingDays = Math.floor(Math.random() * 30); // Generate mock remaining days (replace this with actual data if available)
+          const remainingDays = Math.floor(Math.random() * 30); // Mock remaining days
 
           if (!acc[email]) {
             acc[email] = {
@@ -26,11 +27,11 @@ const MarketDashboard = () => {
               projects: []
             };
           }
-          
+
           acc[email].projects.push({
             name,
             category,
-            account: invited_users || '', // If there are invited users, show them as connected account
+            account: invited_users || '', // Connected account
             remainingDays,
           });
 
@@ -42,16 +43,26 @@ const MarketDashboard = () => {
         setUsers(usersArray);
       })
       .catch(error => {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching project data:', error);
+      });
+
+    // Fetch additional user details (region and subscription)
+    fetch('https://api.confidanto.com/all-users-details')
+      .then(response => response.json())
+      .then(data => {
+        setRegions(data.map(user => user.region));
+        setSubscriptions(data.map(user => user.subscription));
+      })
+      .catch(error => {
+        console.error('Error fetching user details:', error);
       });
   }, []);
 
   return (
-    <div className="flex ">
-      <AdminSidebar/>
+    <div className="flex">
       <div className="bg-gray-100 flex flex-col p-6 w-screen overflow-auto">
         <header className="text-4xl font-bold text-gray-800 mb-6">Confidanto Marketing Dashboard</header>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-white shadow-lg rounded-lg p-6">
             <h2 className="text-xl font-semibold mb-4">Total Users</h2>
             <p className="text-3xl font-bold text-blue-600">{users.length}</p>
@@ -66,15 +77,22 @@ const MarketDashboard = () => {
               {users.reduce((sum, user) => sum + user.projects.reduce((pSum, project) => pSum + (project.remainingDays > 0 ? 1 : 0), 0), 0)}
             </p>
           </div>
+          <div className="bg-white shadow-lg rounded-lg p-6">
+            <h2 className="text-xl font-semibold mb-4">Total Subscriptions</h2>
+            <p className="text-3xl font-bold text-purple-600">
+              {subscriptions.filter(subscription => subscription === 'active').length}
+            </p>
+          </div>
         </div>
         <div className="bg-white shadow-md rounded-lg mt-6 p-6">
           <table className="min-w-full table-auto">
             <thead>
               <tr>
                 <th className="px-4 py-2 text-left">User Name</th>
+                <th className="px-4 py-2 text-left">Region</th>
                 <th className="px-4 py-2 text-left">Project</th>
                 <th className="px-4 py-2 text-left">Category</th>
-                <th className="px-4 py-2 text-left">Connected Account</th>
+                <th className="px-4 py-2 text-left w-28">Connected Account</th>
                 <th className="px-4 py-2 text-left">Remaining Trial Days</th>
               </tr>
             </thead>
@@ -83,6 +101,7 @@ const MarketDashboard = () => {
                 user.projects.map((project, projectIndex) => (
                   <tr key={`${userIndex}-${projectIndex}`} className={`border-t ${projectIndex % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}>
                     <td className="px-4 py-2">{projectIndex === 0 ? user.email : ''}</td>
+                    <td className="px-4 py-2">{regions[userIndex]}</td>
                     <td className="px-4 py-2">{project.name}</td>
                     <td className="px-4 py-2">{project.category}</td>
                     <td className="px-4 py-2">{project.account}</td>
