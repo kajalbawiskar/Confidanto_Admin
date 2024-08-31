@@ -2,10 +2,41 @@ import React, { useState, useEffect } from 'react';
 
 const MarketDashboard = () => {
   const [users, setUsers] = useState([]);
-  const [regions, setRegions] = useState([]);
+  const [regions, setRegions] = useState({});
   const [subscriptions, setSubscriptions] = useState([]);
 
   useEffect(() => {
+    // Fetch additional user details (region and subscription) using POST method
+    fetch('https://api.confidanto.com/all-users-details', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ /* Include any required body data here */ }),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Access the results array
+        const usersArray = data.results || [];
+  
+        // Create a mapping of email to region and subscription
+        const regionsMap = usersArray.reduce((acc, user) => {
+          acc[user.email] = user.region;
+          return acc;
+        }, {});
+        
+        setRegions(regionsMap);
+        setSubscriptions(usersArray.map(user => user.subscription));
+      })
+      .catch(error => {
+        console.error('Error fetching user details:', error);
+      });
+  
     // Fetch project data
     fetch('https://api.confidanto.com/projects-data/fetch-project-list-all-users', {
       method: 'POST',
@@ -20,24 +51,24 @@ const MarketDashboard = () => {
         const groupedUsers = data.reduce((acc, project) => {
           const { email, name, category, invited_users } = project;
           const remainingDays = Math.floor(Math.random() * 30); // Mock remaining days
-
+  
           if (!acc[email]) {
             acc[email] = {
               email,
               projects: []
             };
           }
-
+  
           acc[email].projects.push({
             name,
             category,
             account: invited_users || '', // Connected account
             remainingDays,
           });
-
+  
           return acc;
         }, {});
-
+  
         // Convert object to array for rendering
         const usersArray = Object.values(groupedUsers);
         setUsers(usersArray);
@@ -45,18 +76,9 @@ const MarketDashboard = () => {
       .catch(error => {
         console.error('Error fetching project data:', error);
       });
-
-    // Fetch additional user details (region and subscription)
-    fetch('https://api.confidanto.com/all-users-details')
-      .then(response => response.json())
-      .then(data => {
-        setRegions(data.map(user => user.region));
-        setSubscriptions(data.map(user => user.subscription));
-      })
-      .catch(error => {
-        console.error('Error fetching user details:', error);
-      });
   }, []);
+  
+  
 
   return (
     <div className="flex">
@@ -101,7 +123,7 @@ const MarketDashboard = () => {
                 user.projects.map((project, projectIndex) => (
                   <tr key={`${userIndex}-${projectIndex}`} className={`border-t ${projectIndex % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}>
                     <td className="px-4 py-2">{projectIndex === 0 ? user.email : ''}</td>
-                    <td className="px-4 py-2">{regions[userIndex]}</td>
+                    <td className="px-4 py-2">{regions[user.email] || 'N/A'}</td>
                     <td className="px-4 py-2">{project.name}</td>
                     <td className="px-4 py-2">{project.category}</td>
                     <td className="px-4 py-2">{project.account}</td>
