@@ -12,7 +12,7 @@ const MarketDashboard = () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ /* Include any required body data here */ }),
+      body: JSON.stringify({}),
     })
       .then(response => {
         if (!response.ok) {
@@ -21,10 +21,7 @@ const MarketDashboard = () => {
         return response.json();
       })
       .then(data => {
-        // Access the results array
         const usersArray = data.results || [];
-  
-        // Create a mapping of email to region and subscription
         const regionsMap = usersArray.reduce((acc, user) => {
           acc[user.email] = user.region;
           return acc;
@@ -43,15 +40,23 @@ const MarketDashboard = () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ /* Include any required body data here */ }),
+      body: JSON.stringify({}),
     })
       .then(response => response.json())
       .then(data => {
-        // Group projects by user email
         const groupedUsers = data.reduce((acc, project) => {
-          const { email, name, category, invited_users } = project;
-          const remainingDays = Math.floor(Math.random() * 30); // Mock remaining days
-  
+          const { email, name, category, invited_users, trialStartDate } = project;
+          
+          const trialPeriod = 15; // Define the trial period
+          const currentDate = new Date();
+          const startDate = trialStartDate ? new Date(trialStartDate) : null;
+          let remainingDays = 0;
+
+          if (startDate) {
+            const diffTime = Math.floor((currentDate - startDate) / (1000 * 60 * 60 * 24));
+            remainingDays = isNaN(diffTime) ? 0 : Math.max(trialPeriod - diffTime, 0);
+          }
+
           if (!acc[email]) {
             acc[email] = {
               email,
@@ -69,7 +74,6 @@ const MarketDashboard = () => {
           return acc;
         }, {});
   
-        // Convert object to array for rendering
         const usersArray = Object.values(groupedUsers);
         setUsers(usersArray);
       })
@@ -77,8 +81,6 @@ const MarketDashboard = () => {
         console.error('Error fetching project data:', error);
       });
   }, []);
-  
-  
 
   return (
     <div className="flex">
@@ -127,7 +129,7 @@ const MarketDashboard = () => {
                     <td className="px-4 py-2">{project.name}</td>
                     <td className="px-4 py-2">{project.category}</td>
                     <td className="px-4 py-2">{project.account}</td>
-                    <td className="px-4 py-2">{project.remainingDays}</td>
+                    <td className="px-4 py-2">{isNaN(project.remainingDays) ? 'N/A' : project.remainingDays}</td>
                   </tr>
                 ))
               ))}
@@ -140,3 +142,4 @@ const MarketDashboard = () => {
 };
 
 export default MarketDashboard;
+
