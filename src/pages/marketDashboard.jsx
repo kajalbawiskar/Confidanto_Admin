@@ -9,7 +9,7 @@ const MarketDashboard = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        await axios.post('http://localhost:8080/api/fetch-users');
+        await axios.post('https://api.confidanto.com/all-users-details');
         console.log('User data fetched and saved successfully');
       } catch (error) {
         console.error('Error fetching user data:', error);
