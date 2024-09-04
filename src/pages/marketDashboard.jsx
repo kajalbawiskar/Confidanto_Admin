@@ -1,10 +1,23 @@
+import axios from 'axios';
 import React, { useState, useEffect } from 'react';
+import AdminSidebar from '../components/AdminSidebar';
 
 const MarketDashboard = () => {
   const [users, setUsers] = useState([]);
   const [regions, setRegions] = useState({});
   const [subscriptions, setSubscriptions] = useState([]);
-
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        await axios.post('http://localhost:8080/api/fetch-users');
+        console.log('User data fetched and saved successfully');
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+  
+    fetchUserData();
+  }, []);
   useEffect(() => {
     // Fetch additional user details (region and subscription) using POST method
     fetch('https://api.confidanto.com/all-users-details', {
@@ -83,8 +96,9 @@ const MarketDashboard = () => {
   }, []);
 
   return (
-    <div className="flex">
-      <div className="bg-gray-100 flex flex-col p-6 w-screen overflow-auto">
+    <div className="flex h-screen">
+      <AdminSidebar />
+      <div className="bg-gray-100 flex flex-col p-6 w-screen overflow-y-scroll">
         <header className="text-4xl font-bold text-gray-800 mb-6">Confidanto Marketing Dashboard</header>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-white shadow-lg rounded-lg p-6">
@@ -142,4 +156,3 @@ const MarketDashboard = () => {
 };
 
 export default MarketDashboard;
-
