@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import {  LoginPage, MarketDashboard, Waitlist } from './pages';
-import ChatBox  from './components/ChatBox';
 
 const ProtectedRoute = ({ element, isAuthenticated, ...rest }) => {
   return isAuthenticated ? element : <Navigate to="/" replace />;
