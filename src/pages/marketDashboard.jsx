@@ -6,18 +6,7 @@ const MarketDashboard = () => {
   const [users, setUsers] = useState([]);
   const [regions, setRegions] = useState({});
   const [subscriptions, setSubscriptions] = useState([]);
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        await axios.post('https://api.confidanto.com/all-users-details');
-        console.log('User data fetched and saved successfully');
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
   
-    fetchUserData();
-  }, []);
   useEffect(() => {
     // Fetch additional user details (region and subscription) using POST method
     fetch('https://api.confidanto.com/all-users-details', {
@@ -156,4 +145,3 @@ const MarketDashboard = () => {
 };
 
 export default MarketDashboard;
-
