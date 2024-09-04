@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import {  LoginPage, MarketDashboard } from './pages';
+import {  LoginPage, MarketDashboard, Waitlist } from './pages';
+import ChatBox  from './components/ChatBox';
 
 const ProtectedRoute = ({ element, isAuthenticated, ...rest }) => {
   return isAuthenticated ? element : <Navigate to="/" replace />;
@@ -13,6 +14,7 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<LoginPage setIsAuthenticated={setIsAuthenticated} />} />
+        <Route path="/waitlist" element={<ProtectedRoute element={<Waitlist />} isAuthenticated={isAuthenticated} />} />
         <Route path="/MarketDashboard" element={<ProtectedRoute element={<MarketDashboard />} isAuthenticated={isAuthenticated} />} />
       </Routes>
     </Router>
