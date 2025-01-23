@@ -1,25 +1,62 @@
 import React, { useState, useEffect } from 'react';
+import AdminSidebar from '../components/AdminSidebar';
 
 const MarketDashboard = () => {
   const [users, setUsers] = useState([]);
-  const [regions, setRegions] = useState([]);
+  const [regions, setRegions] = useState({});
   const [subscriptions, setSubscriptions] = useState([]);
-
+ 
   useEffect(() => {
+    // Fetch additional user details (region and subscription) using POST method
+    fetch('https://api.confidanto.com/all-users-details', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        const usersArray = data.results || [];
+        const regionsMap = usersArray.reduce((acc, user) => {
+          acc[user.email] = user.region;
+          return acc;
+        }, {});
+        
+        setRegions(regionsMap);
+        setSubscriptions(usersArray.map(user => user.subscription));
+      })
+      .catch(error => {
+        console.error('Error fetching user details:', error);
+      });
+  
     // Fetch project data
     fetch('https://api.confidanto.com/projects-data/fetch-project-list-all-users', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ /* Include any required body data here */ }),
+      body: JSON.stringify({}),
     })
       .then(response => response.json())
       .then(data => {
-        // Group projects by user email
         const groupedUsers = data.reduce((acc, project) => {
-          const { email, name, category, invited_users } = project;
-          const remainingDays = Math.floor(Math.random() * 30); // Mock remaining days
+          const { email, name, category, invited_users, trialStartDate } = project;
+          
+          const trialPeriod = 15; // Define the trial period
+          const currentDate = new Date();
+          const startDate = trialStartDate ? new Date(trialStartDate) : null;
+          let remainingDays = 0;
+
+          if (startDate) {
+            const diffTime = Math.floor((currentDate - startDate) / (1000 * 60 * 60 * 24));
+            remainingDays = isNaN(diffTime) ? 0 : Math.max(trialPeriod - diffTime, 0);
+          }
 
           if (!acc[email]) {
             acc[email] = {
@@ -27,40 +64,29 @@ const MarketDashboard = () => {
               projects: []
             };
           }
-
+  
           acc[email].projects.push({
             name,
             category,
             account: invited_users || '', // Connected account
             remainingDays,
           });
-
+  
           return acc;
         }, {});
-
-        // Convert object to array for rendering
+  
         const usersArray = Object.values(groupedUsers);
         setUsers(usersArray);
       })
       .catch(error => {
         console.error('Error fetching project data:', error);
       });
-
-    // Fetch additional user details (region and subscription)
-    fetch('https://api.confidanto.com/all-users-details')
-      .then(response => response.json())
-      .then(data => {
-        setRegions(data.map(user => user.region));
-        setSubscriptions(data.map(user => user.subscription));
-      })
-      .catch(error => {
-        console.error('Error fetching user details:', error);
-      });
   }, []);
 
   return (
-    <div className="flex">
-      <div className="bg-gray-100 flex flex-col p-6 w-screen overflow-auto">
+    <div className="flex h-screen">
+      <AdminSidebar />
+      <div className="bg-gray-100 flex flex-col p-6 w-screen overflow-y-scroll">
         <header className="text-4xl font-bold text-gray-800 mb-6">Confidanto Marketing Dashboard</header>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-white shadow-lg rounded-lg p-6">
@@ -101,11 +127,11 @@ const MarketDashboard = () => {
                 user.projects.map((project, projectIndex) => (
                   <tr key={`${userIndex}-${projectIndex}`} className={`border-t ${projectIndex % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}>
                     <td className="px-4 py-2">{projectIndex === 0 ? user.email : ''}</td>
-                    <td className="px-4 py-2">{regions[userIndex]}</td>
+                    <td className="px-4 py-2">{regions[user.email] || 'N/A'}</td>
                     <td className="px-4 py-2">{project.name}</td>
                     <td className="px-4 py-2">{project.category}</td>
                     <td className="px-4 py-2">{project.account}</td>
-                    <td className="px-4 py-2">{project.remainingDays}</td>
+                    <td className="px-4 py-2">{isNaN(project.remainingDays) ? 'N/A' : project.remainingDays}</td>
                   </tr>
                 ))
               ))}
@@ -118,3 +144,4 @@ const MarketDashboard = () => {
 };
 
 export default MarketDashboard;
+
