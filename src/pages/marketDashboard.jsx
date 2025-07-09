@@ -5,11 +5,7 @@ const MarketDashboard = () => {
   const [users, setUsers] = useState([]);
   const [regions, setRegions] = useState({});
   const [subscriptions, setSubscriptions] = useState([]);
-<<<<<<< HEAD
-  
-=======
  
->>>>>>> c83d322e578f5d4783b213f13193e2d1724f7461
   useEffect(() => {
     // Fetch additional user details (region and subscription) using POST method
     fetch('https://api.confidanto.com/all-users-details', {
