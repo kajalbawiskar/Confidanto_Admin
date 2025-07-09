@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {  useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import confi from '../assets/confi-logo-new2.png';
 
 function LoginPage({ setIsAuthenticated }) {
@@ -35,7 +35,10 @@ function LoginPage({ setIsAuthenticated }) {
   const fakeApiCall = (email, password) => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        if (email === 'confidanto.operations@gmail.com' && password === 'Lc5zwPi6tNfXdyb') {
+        if (
+          (email === 'kajal.A@confidanto.com' || email === 'sanket.mali@confidanto.com') &&
+          password === 'Lc5zwPi6tNfXdyb'
+        ) {
           resolve({ success: true });
         } else {
           resolve({ success: false });
